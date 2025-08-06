@@ -6,13 +6,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebas
 
 // Config Firebase
 const firebaseConfig = {
-      apiKey: "AIzaSyDYiXjIGccT_jD8a6C4iW8gMgh1ruby6sg",
-      authDomain: "gestionale-kneip.firebaseapp.com",
-      projectId: "gestionale-kneip",
-      storageBucket: "gestionale-kneip.firebasestorage.app",
-      messagingSenderId: "154033977872",
-      appId: "1:154033977872:web:e7c5d15698ad6ccf4f2895",
-      measurementId: "G-ER3BHZWYP5"
+      YOUR API KEY
 };
 
 // Initialize Firebase
@@ -93,4 +87,5 @@ if (isIndexPage) {
     orarioInput.value = getMinuto();
     dataInput.value = getOggi();
   });
+
 }
