@@ -17,4 +17,4 @@ Backup download feature
 Author:
 
 Created by Samuele Sartori
-email: samuele.sartori1108@gmail.com
+; email: samuele.sartori1108@gmail.com
