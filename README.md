@@ -1,20 +1,25 @@
-# KNEIP_GESTIONALE
+# KNEIP_TRACKING
 
-This is a simple
-web-based personal banking app
-built with HTML, CSS,
-JavaScript, and Firebase.
+## Description
+A simple and intuitive web application to monitor in real time the number of people present in a kneip center.  
+Uses **Firebase Firestore** for secure data storage and instant updates.
 
-It allows users to:
--track people at the kneip center.
+---
 
-Features:
+## Features
+- Real-time display of the number of people present  
+- Secure cloud data storage  
+- Option to download a backup of attendance data  
+- Minimal interface for quick use
 
-Firestore database for storing number of people  
-Real-time calculation  
-Backup download feature  
+---
 
-Author:
+## Technologies Used
+- HTML, CSS, JavaScript  
+- Firebase Firestore  
 
-Created by Samuele Sartori
-Email: samuele.sartori1108@gmail.com
+---
+
+## Author
+**Samuele Sartori**  
+📧 Email: samuele.sartori1108@gmail.com
