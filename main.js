@@ -1,47 +1,43 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+// main.js
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-let win;
-
-// Controllo se siamo in sviluppo
-const isDev = process.env.NODE_ENV !== 'production';
-
-// Funzione per ottenere il percorso corretto della cartella /app
-function getAppPath() {
-  return isDev
-    ? path.join(__dirname, 'app')          // in sviluppo
-    : path.join(process.resourcesPath, 'app'); // dopo il build
-}
+// Migliora la compatibilità su Raspberry Pi (evita errori GBM/GL)
+app.disableHardwareAcceleration();
+// Abilita esplicitamente gli eventi touch (utile su alcuni display)
+app.commandLine.appendSwitch('touch-events', 'enabled');
 
 function createWindow() {
-  win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  const win = new BrowserWindow({
+    width: 1024,
+    height: 700,
+    minWidth: 800,
+    minHeight: 600,
+    backgroundColor: '#111111',
+    show: false,             // mostriamo la finestra solo quando è pronta
+    autoHideMenuBar: true,   // nasconde la menubar
     webPreferences: {
-      nodeIntegration: true,    // ora possiamo accedere direttamente alle API Node
-      contextIsolation: false   // disattivato isolamento
+      // La tua /app usa solo HTML/CSS/JS “puro”, quindi niente Node nel renderer
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true
     }
   });
 
-  // Carica la pagina iniziale (check.html)
-  win.loadFile(path.join(__dirname, 'check.html'));
+  win.once('ready-to-show', () => win.show());
+  win.loadFile(path.join(__dirname, 'app', 'index.html'));
 }
 
-// Evento per aprire l'app principale
-ipcMain.on('open-app', () => {
-  win.loadFile(path.join(getAppPath(), 'index.html'));
-});
-
-// Creazione finestra all'avvio dell'app
 app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', () => {
+    // Su macOS riapri una finestra se l'app è attiva e non ce ne sono
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-// Chiudi l'app quando tutte le finestre sono chiuse
+// Su Linux/Windows chiudi l’app quando tutte le finestre sono chiuse
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
