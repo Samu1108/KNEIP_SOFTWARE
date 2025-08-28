@@ -55,6 +55,7 @@ select {
       <p> Bambini: <span id="bambiniStats">0</span></p>
       <p> Totale: <span id="totaleStats">0</span></p>
       <p> Incasso: <span id="incassoStats">0.00</span> €</p>
+      <p> Meteo: <span id="meteoStats">—</span></p>
     </div>
   </div>
 
@@ -104,32 +105,45 @@ select {
     }
 
     async function mostraStatsPerData(dataSelezionata) {
-      const snapshot = await getDocs(collection(db, "clienti"));
+  const snapshot = await getDocs(collection(db, "clienti"));
 
-      let adulti = 0;
-      let bambini = 0;
+  let adulti = 0;
+  let bambini = 0;
+  let meteoTotale = 0;
+  let meteoCount = 0;
 
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        if (d.data === dataSelezionata) {
-          const desc = (d.descrizione || "").toLowerCase();
-          if (desc.includes("bambino") || desc.includes("girapale")) {
-            bambini++;
-          } else {
-            adulti++;
-          }
-        }
-      });
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    if (d.data === dataSelezionata) {
+      const desc = (d.descrizione || "").toLowerCase();
+      if (desc.includes("bambino") || desc.includes("girapale")) {
+        bambini++;
+      } else {
+        adulti++;
+      }
 
-      const totale = adulti + bambini;
-      const incasso = adulti * 3 + bambini * 2;
-
-      adultiSpan.textContent = adulti;
-      bambiniSpan.textContent = bambini;
-      totaleSpan.textContent = totale;
-      incassoSpan.textContent = incasso.toFixed(2);
-      risultatiBox.style.display = "block";
+      if (d.meteo) {  // se esiste il meteo
+        meteoTotale += d.meteo;
+        meteoCount++;
+      }
     }
+  });
+
+  const totale = adulti + bambini;
+  const incasso = adulti * 3 + bambini * 2;
+
+  adultiSpan.textContent = adulti;
+  bambiniSpan.textContent = bambini;
+  totaleSpan.textContent = totale;
+  incassoSpan.textContent = incasso.toFixed(2);
+
+  // Meteo medio
+  const meteoMedio = meteoCount > 0 ? (meteoTotale / meteoCount).toFixed(1) : "—";
+  document.getElementById("meteoStats").textContent = meteoMedio;
+
+  risultatiBox.style.display = "block";
+}
+
 
     dataSelect.addEventListener("change", (e) => {
       const valore = e.target.value;

@@ -18,35 +18,35 @@
       <h1>SITO GESTIONALE PERCORSO KNEIP SANT'ANTONIO</h1>
     </header>
 
-<div class="form-container">
-  <div class="form-box">
-    <h3> Adulti (over 14 anni)</h3>
-    <label for="numeroAdulti">Numero di adulti:</label>
-    <select id="numeroAdulti">
-      <option value="">-- Seleziona --</option>
-      <option value="1">1 adulto</option>
-      <option value="2">2 adulti</option>
-      <option value="3">3 adulti</option>
-      <option value="4">4 adulti</option>
-      <option value="5">5 adulti</option>
-      <option value="6">6 adulti</option>
-    </select>
-  </div>
+    <div class="form-container">
+      <div class="form-box">
+        <h3>Adulti (over 14 anni)</h3>
+        <label for="numeroAdulti">Numero di adulti:</label>
+        <select id="numeroAdulti">
+          <option value="">-- Seleziona --</option>
+          <option value="1">1 adulto</option>
+          <option value="2">2 adulti</option>
+          <option value="3">3 adulti</option>
+          <option value="4">4 adulti</option>
+          <option value="5">5 adulti</option>
+          <option value="6">6 adulti</option>
+        </select>
+      </div>
 
-  <div class="form-box">
-    <h3> Bambini (under 14 anni)</h3>
-    <label for="numeroBambini">Numero di bambini:</label>
-    <select id="numeroBambini">
-      <option value="">-- Seleziona --</option>
-      <option value="1">1 bambino</option>
-      <option value="2">2 bambini</option>
-      <option value="3">3 bambini</option>
-      <option value="4">4 bambini</option>
-      <option value="5">5 bambini</option>
-      <option value="6">6 bambini</option>
-    </select>
-  </div>
-</div>
+      <div class="form-box">
+        <h3>Bambini (under 14 anni)</h3>
+        <label for="numeroBambini">Numero di bambini:</label>
+        <select id="numeroBambini">
+          <option value="">-- Seleziona --</option>
+          <option value="1">1 bambino</option>
+          <option value="2">2 bambini</option>
+          <option value="3">3 bambini</option>
+          <option value="4">4 bambini</option>
+          <option value="5">5 bambini</option>
+          <option value="6">6 bambini</option>
+        </select>
+      </div>
+    </div>
 
     <div class="form-group">
       <label for="orario">ORARIO:</label>
@@ -57,6 +57,20 @@
       <label for="data">Date:</label>
       <input type="date" id="data" />
     </div>
+
+    <div class="form-group" style="display:flex; align-items:center; gap:10px; width:100%;">
+  <label for="meteo" style="margin-right:10px; flex-shrink:0;">Meteo:</label>
+  
+  <!-- Box numero: circa 1/3 della larghezza totale -->
+  <input type="number" id="meteo" min="1" max="10" 
+         style="flex-basis:30%; flex-grow:0; width:auto; padding:5px; font-size:16px;" />
+  
+  <!-- Box descrizione: circa 2/3 della larghezza totale -->
+  <input type="text" id="meteoDescrizione" readonly 
+         style="flex-basis:70%; flex-grow:1; width:auto; padding:5px; font-size:16px; font-weight:bold;" />
+</div>
+
+
     <div class="form-actions">
       <button id="addBtn">Add</button>
       <button id="resetBtn">Reset</button>
@@ -65,86 +79,148 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDYiXjIGccT_jD8a6C4iW8gMgh1ruby6sg",
-    authDomain: "gestionale-kneip.firebaseapp.com",
-    projectId: "gestionale-kneip",
-    storageBucket: "gestionale-kneip.firebasestorage.app",
-    messagingSenderId: "154033977872",
-    appId: "1:154033977872:web:e7c5d15698ad6ccf4f2895",
-    measurementId: "G-ER3BHZWYP5"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDYiXjIGccT_jD8a6C4iW8gMgh1ruby6sg",
+  authDomain: "gestionale-kneip.firebaseapp.com",
+  projectId: "gestionale-kneip",
+  storageBucket: "gestionale-kneip.firebasestorage.app",
+  messagingSenderId: "154033977872",
+  appId: "1:154033977872:web:e7c5d15698ad6ccf4f2895",
+  measurementId: "G-ER3BHZWYP5"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const descrizioneInput = document.getElementById("descrizione");
-  const orarioInput = document.getElementById("orario");
-  const dataInput = document.getElementById("data");
+const orarioInput = document.getElementById("orario");
+const dataInput = document.getElementById("data");
+const meteoInput = document.getElementById("meteo");
+const meteoDescrizione = document.getElementById("meteoDescrizione");
 
-  // Data di oggi
-  function getToday() {
-    const today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    return today.toISOString().split("T")[0];
+// Funzioni data/orario
+function getToday() {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().split("T")[0];
+}
+function getMinuto() {
+  const oggi = new Date();
+  return `${String(oggi.getHours()).padStart(2,'0')}:${String(oggi.getMinutes()).padStart(2,'0')}`;
+}
+
+// Mostra testo iniziale in attesa dell'API
+function setDescrizioneInAttesa() {
+  meteoDescrizione.value = "In attesa di risposta dall'API";
+}
+
+// Funzione per aggiornare descrizione meteo in base al numero
+function aggiornaDescrizioneMeteo(valore) {
+  let descrizione = "";
+  switch (valore) {
+    case 1: descrizione = "Pioggia forte"; break;
+    case 2: descrizione = "Piovoso"; break;
+    case 3: descrizione = "Pioggia leggera"; break;
+    case 4: descrizione = "Molto nuvoloso"; break;
+    case 5: descrizione = "Nuvoloso"; break;
+    case 6: descrizione = "Parzialmente nuvoloso"; break;
+    case 7: descrizione = "Soleggiato con qualche nuvola"; break;
+    case 8: descrizione = "Soleggiato"; break;
+    case 9: descrizione = "Molto soleggiato"; break;
+    case 10: descrizione = "Sereno"; break;
+    default: descrizione = "In attesa di risposta dall'API";
   }
+  meteoDescrizione.value = descrizione;
+}
 
-  // Orario attuale
-  function getMinuto() {
-    const oggi = new Date();
-    const ore = String(oggi.getHours()).padStart(2, '0');
-    const minuti = String(oggi.getMinutes()).padStart(2, '0');
-    return `${ore}:${minuti}`;
-  }
+// Evento input per aggiornare descrizione se l'utente cambia il numero
+meteoInput.addEventListener("input", () => {
+  const valore = parseInt(meteoInput.value) || 0;
+  aggiornaDescrizioneMeteo(valore);
+});
 
-  // Imposta i valori di default alla apertura pagina
-  window.addEventListener("DOMContentLoaded", () => {
-    dataInput.value = getToday();
-    orarioInput.value = getMinuto();
+// Meteo automatico con API
+async function caricaMeteoAutomatico() {
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=cloudcover,precipitation&timezone=auto`);
+      const data = await res.json();
+
+      const oraAttuale = new Date().getHours();
+      const index = data.hourly.time.findIndex(t => new Date(t).getHours() === oraAttuale);
+
+      const precipitation = data.hourly.precipitation[index] || 0;
+      const cloudcover = data.hourly.cloudcover[index] || 0;
+
+      let score;
+
+      // Se piove molto → 1
+      if (precipitation > 5) score = 1;
+      // Pioggia leggera → 2-3
+      else if (precipitation > 0) score = 2 + Math.round(precipitation / 5); // 2 o 3
+      else {
+        // Se non piove, mappa cloudcover su scala 4-10
+        if (cloudcover > 90) score = 4;
+        else if (cloudcover > 80) score = 5;
+        else if (cloudcover > 70) score = 6;
+        else if (cloudcover > 60) score = 7;
+        else if (cloudcover > 40) score = 8;
+        else if (cloudcover > 20) score = 9;
+        else score = 10; // sereno
+      }
+
+      // Aggiorna input e descrizione
+      meteoInput.value = score;
+      aggiornaDescrizioneMeteo(score);
+
+    } catch (e) {
+      console.error("Errore meteo:", e);
+    }
   });
+}
 
-  async function aggiungiCliente() {
+
+// Imposta valori di default al caricamento
+window.addEventListener("DOMContentLoaded", () => {
+  dataInput.value = getToday();
+  orarioInput.value = getMinuto();
+  setDescrizioneInAttesa();
+  caricaMeteoAutomatico();
+});
+
+// Aggiungi cliente
+async function aggiungiCliente() {
   const orario = orarioInput.value;
   const data = dataInput.value;
   const numeroAdulti = parseInt(document.getElementById("numeroAdulti").value) || 0;
   const numeroBambini = parseInt(document.getElementById("numeroBambini").value) || 0;
+  const meteo = parseInt(meteoInput.value);
 
   if (!orario || !data || (numeroAdulti === 0 && numeroBambini === 0)) {
     alert("⚠️ Inserisci almeno un adulto o un bambino e compila orario/data!");
     return;
   }
+  if (!meteo || meteo < 1 || meteo > 10) {
+    alert("⚠️ Inserisci un valore meteo valido da 1 a 10!");
+    return;
+  }
 
   try {
-    // 🔹 Salva adulti
     for (let i = 0; i < numeroAdulti; i++) {
-      await addDoc(collection(db, "clienti"), {
-        descrizione: "ADULTO",
-        orario,
-        data
-      });
+      await addDoc(collection(db, "clienti"), { descrizione: "ADULTO", orario, data, meteo });
     }
-
-    // 🔹 Salva bambini
     for (let i = 0; i < numeroBambini; i++) {
-      await addDoc(collection(db, "clienti"), {
-        descrizione: "BAMBINO",
-        orario,
-        data
-      });
+      await addDoc(collection(db, "clienti"), { descrizione: "BAMBINO", orario, data, meteo });
     }
-
-    alert(`✅ Salvati ${numeroAdulti} adulti e ${numeroBambini} bambini!`);
+    alert(`✅ Salvati ${numeroAdulti} adulti e ${numeroBambini} bambini con meteo ${meteo}!`);
     resetCampi();
   } catch (error) {
     console.error("Errore durante il salvataggio:", error);
@@ -152,91 +228,51 @@
   }
 }
 
-
-  // Reset campi
-  function resetCampi() {
+// Reset campi
+function resetCampi() {
   document.getElementById("numeroAdulti").value = "";
   document.getElementById("numeroBambini").value = "";
   orarioInput.value = getMinuto();
   dataInput.value = getToday();
+  setDescrizioneInAttesa();
+  caricaMeteoAutomatico();
 }
 
-
- // Download PDF clienti di oggi con descrizioni leggibili
+// Download PDF
 async function downloadBackup() {
   const q = query(collection(db, "clienti"), orderBy("data", "asc"));
   const snapshot = await getDocs(q);
   const oggi = getToday();
+  const clientiOggi = snapshot.docs.map(doc => doc.data()).filter(d => d.data === oggi);
 
-  const clientiOggi = snapshot.docs
-    .map(doc => doc.data())
-    .filter(d => d.data === oggi);
+  if (clientiOggi.length === 0) { alert("Nessun cliente registrato oggi."); return; }
 
-  if (clientiOggi.length === 0) {
-    alert("Nessun cliente registrato oggi.");
-    return;
-  }
-
-  let adulti = 0;
-  let bambini = 0;
-
-  const righe = clientiOggi.map((cliente, index) => {
-    let tipo = "ADULTO";
-    if (
-      cliente.descrizione.toLowerCase().includes("girapale") ||
-      cliente.descrizione.toLowerCase().includes("bambino")
-    ) {
-      tipo = "BAMBINO";
-    } else {
-      tipo = "ADULTO";
-    }
-
-    // Conta
-    if (tipo === "ADULTO") adulti++;
-    else bambini++;
-
-    return `${index + 1}. ${tipo} - ${cliente.orario}`;
+  let adulti = 0, bambini = 0;
+  const righe = clientiOggi.map((cliente,index) => {
+    const tipo = cliente.descrizione.toLowerCase().includes("bambino") ? "BAMBINO" : "ADULTO";
+    if (tipo === "ADULTO") adulti++; else bambini++;
+    return `${index+1}. ${tipo} - ${cliente.orario} - Meteo: ${cliente.meteo}`;
   });
 
-// Genera PDF con jsPDF
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-
-// Intestazione
-doc.setFont("Helvetica", "bold");
-doc.setFontSize(16);
-doc.text(`Registro Clienti - ${oggi}`, 10, 15);
-
-doc.setFont("Helvetica", "normal");
-doc.setFontSize(12);
-doc.text(`Totale clienti: ${clientiOggi.length}`, 10, 30);
-doc.text(`Adulti: ${adulti}`, 10, 38);
-doc.text(`Bambini: ${bambini}`, 10, 46);
-
-doc.setFont("Helvetica", "bold");
-doc.text("Elenco clienti:", 10, 60);
-
-// Elenco clienti a colonne
-doc.setFont("Helvetica", "normal");
-let y = 70;
-let col = 0;
-const colonneX = [10, 70, 130]; // 3 colonne: sinistra, centro, destra
-  righe.forEach((riga, i) => {
-    doc.text(riga, colonneX[col], y);
-    y += 8;
-
-    if (y > 280) {
-      col++;
-      y = 70;
-      if (col >= colonneX.length) {
-        // Troppo lungo → nuova pagina
-        doc.addPage();
-        col = 0;
-        y = 70;
-      }
-    }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont("Helvetica","bold");
+  doc.setFontSize(16);
+  doc.text(`Registro Clienti - ${oggi}`,10,15);
+  doc.setFont("Helvetica","normal");
+  doc.setFontSize(12);
+  doc.text(`Totale clienti: ${clientiOggi.length}`,10,30);
+  doc.text(`Adulti: ${adulti}`,10,38);
+  doc.text(`Bambini: ${bambini}`,10,46);
+  doc.setFont("Helvetica","bold");
+  doc.text("Elenco clienti:",10,60);
+  doc.setFont("Helvetica","normal");
+  let y = 70, col = 0, colonneX = [10,70,130];
+  righe.forEach((riga,i)=>{
+    doc.text(riga,colonneX[col],y);
+    y+=8;
+    if(y>280){ col++; y=70; if(col>=colonneX.length){ doc.addPage(); col=0; y=70; } }
   });
-
   doc.save(`clienti_${oggi}.pdf`);
 }
 
@@ -244,7 +280,6 @@ const colonneX = [10, 70, 130]; // 3 colonne: sinistra, centro, destra
 document.getElementById("addBtn").addEventListener("click", aggiungiCliente);
 document.getElementById("resetBtn").addEventListener("click", resetCampi);
 document.getElementById("backupBtn").addEventListener("click", downloadBackup);
-</script>
 
 </script>
 </body>
